@@ -1,4 +1,8 @@
 # Delivery Service Microservice
+## **Сколнировать репозиторий**
+git clone https://github.com/DarkShine666/delivery_service_django.git
+
+---
 
 📦 **Микросервис международной доставки**  
 Реализован на Django + DRF + Celery + Redis + MySQL.
@@ -26,4 +30,4 @@
    DB_HOST=db
    DB_PORT=3306
    REDIS_HOST=redis
-   REDIS_PORT=6379```
+   REDIS_PORT=6379
