@@ -1,0 +1,84 @@
+services:
+  web:
+    command: >
+      sh -c "
+      poetry run python manage.py migrate &&
+      poetry run python manage.py runserver 0.0.0.0:8000
+      "
+    build: .
+    volumes:
+      - .:/app
+      - logs:/app/logs
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    
+
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_DATABASE: delivery_db
+      MYSQL_ROOT_PASSWORD: rootpass
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "3306"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  worker:
+    build: .
+    command: >
+      sh -c "
+        poetry run celery -A config worker -l info -n worker.%h
+      "
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  beat:
+    build: .
+    command: >
+      sh -c "
+        poetry run celery -A config beat -l info
+      "
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  logs:
