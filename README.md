@@ -1,4 +1,3 @@
-# Delivery Service Microservice
 ## **Сколнировать репозиторий**
 git clone https://github.com/DarkShine666/delivery_service_django.git
 
