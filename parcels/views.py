@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.mixins import CreateModelMixin
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError
+from rest_framework.viewsets import ModelViewSet
 
 from parcels.tasks import calculate_delivery_price
 from parcels.models import Parcel, ParcelType
@@ -84,6 +85,11 @@ class ParcelDetailView(generics.RetrieveAPIView):
         return super().get(request, *args, **kwargs)
 
 
-class ParcelTypeListView(generics.ListAPIView):
+class ParcelTypeListCreateView(generics.ListCreateAPIView):
+    queryset = ParcelType.objects.all()
+    serializer_class = ParcelTypeSerializer
+
+
+class ParcelTypeDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ParcelType.objects.all()
     serializer_class = ParcelTypeSerializer

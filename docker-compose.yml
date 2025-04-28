@@ -22,18 +22,19 @@ services:
     
 
   db:
-    image: mysql:8
+    image: postgres:17
     environment:
-      MYSQL_DATABASE: delivery_db
-      MYSQL_ROOT_PASSWORD: rootpass
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - "3306:3306"
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "3306"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
       interval: 10s
-      timeout: 5s
       retries: 5
-    restart: unless-stopped
 
   redis:
     image: redis:7
@@ -82,3 +83,4 @@ services:
 
 volumes:
   logs:
+  postgres_data:

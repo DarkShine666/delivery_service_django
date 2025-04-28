@@ -1,10 +1,19 @@
-FROM python:3.12
+FROM python:3.12-slim
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    # если нужно, ещё: python3-dev \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
 COPY pyproject.toml poetry.lock* ./
+
 RUN pip install poetry 
-RUN poetry install --no-root
+
+RUN poetry config virtualenvs.create false \
+    &&poetry install --no-root
 
 COPY . .
 

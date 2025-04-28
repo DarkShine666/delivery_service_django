@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 import sys
+from django.core.cache import caches
 
 from dotenv import load_dotenv
 
@@ -26,8 +27,8 @@ ALLOWED_HOSTS = ["*"]
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL")
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = int(os.getenv("REDIS_PORT"))
+REDIS_CACHE_DB = os.environ.get("REDIS_CACHE_DB")
 
-# Application definition
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -84,12 +85,25 @@ WSGI_APPLICATION = "config.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("MYSQL_DATABASE", "delivery_db"),
-        "USER": os.environ.get("MYSQL_USER", "root"),
-        "PASSWORD": os.environ.get("MYSQL_PASSWORD", "rootpass"),
-        "HOST": os.environ.get("MYSQL_HOST", "db"),
-        "PORT": os.environ.get("MYSQL_PORT", "3306"),
+        "ENGINE": os.environ.get("DB_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.environ["DB_NAME"],
+        "USER": os.environ["DB_USER"],
+        "PASSWORD": os.environ["DB_PASSWORD"],
+        "HOST": os.environ.get("DB_HOST", "db"),
+        "PORT": os.environ.get("DB_PORT", "5432"),
+    }
+}
+import os
+from django.core.cache import caches
+
+REDIS_HOST = os.getenv("REDIS_HOST", "redis")
+REDIS_PORT = os.getenv("REDIS_PORT", "6379")
+REDIS_CACHE_DB = os.getenv("REDIS_CACHE_DB", "1")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_CACHE_DB}",
     }
 }
 
